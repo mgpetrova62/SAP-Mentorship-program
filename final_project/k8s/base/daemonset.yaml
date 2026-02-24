@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: host-metrics-exporter
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: host-metrics-exporter
+  template:
+    metadata:
+      labels:
+        app: host-metrics-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "2112"
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: exporter
+        image: mgpetrova62/my-go-exporter:v4
+        ports:
+        - containerPort: 2112
+        env:
+        - name: HOST_PROC
+          value: /host/proc
+        - name: HOST_SYS
+          value: /host/sys
+        volumeMounts:
+        - name: proc
+          mountPath: /host/proc
+          readOnly: true
+        - name: sys
+          mountPath: /host/sys
+          readOnly: true
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: exporter-service
+  namespace: default
+  labels:
+    app: host-metrics-exporter
+spec:
+  ports:
+  - port: 2112
+    protocol: TCP
+  selector:
+    app: host-metrics-exporter

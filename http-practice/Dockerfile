@@ -13,10 +13,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /main .
 
 # STAGE 2: The Final Image
 # Start fresh with a tiny 'scratch' image
-FROM scratch
+# FROM scratch
 
-# Copy the binary from the 'builder' stage to this final image
-COPY --from=builder /main /main
+# # Copy the binary from the 'builder' stage to this final image
+# COPY --from=builder /main /main
 
 # Run the app
 EXPOSE 8080

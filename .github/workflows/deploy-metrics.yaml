@@ -1,0 +1,50 @@
+name: Deploy Host Metrics Exporter
+
+on:
+  push:
+    branches:
+      - main
+    # MAGIC PART 1: Only run this if files inside 'final_project' change
+    paths:
+      - 'final_project/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: final_project
+          push: true
+          tags: mgpetrova62/my-go-exporter:latest,mgpetrova62/my-go-exporter:${{ github.sha }}
+          platforms: linux/amd64
+
+      - name: Install Kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy with Kustomize
+        run: |
+          # MAGIC PART 3: Go into the project folder before running commands
+          cd final_project/k8s/overlays/production
+          
+          # Update the image tag to the new version we just built
+          kustomize edit set image mgpetrova62/my-go-exporter=mgpetrova62/my-go-exporter:${{ github.sha }}
+          
+          # Build and Apply!
+          kubectl kustomize . | kubectl apply -f -
