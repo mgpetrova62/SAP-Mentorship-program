@@ -1,18 +1,29 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: default-deny-all
+  name: allow-prometheus
   namespace: default
 spec:
-  podSelector: {}
+  podSelector:
+    matchLabels:
+      app: host-metrics-exporter 
   policyTypes:
   - Ingress
-
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: prometheus-server
+    ports:
+    - protocol: TCP
+      port: 2112 
+    - protocol: TCP
+      port: 8080 
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-prometheus
+  name: allow-prometheus-ksm
   namespace: default
 spec:
   podSelector:
@@ -27,6 +38,4 @@ spec:
           app: prometheus-server
     ports:
     - protocol: TCP
-      port: 2112 
-    - protocol: TCP
-      port: 8080 
+      port: 8080
