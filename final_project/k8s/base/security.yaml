@@ -21,9 +21,9 @@ spec:
   - Ingress
   ingress:
   - from:
-    - namespaceSelector:
+    - podSelector:
         matchLabels:
-          kubernetes.io/metadata.name: kyma-system
+          app: prometheus-server  
     ports:
     - protocol: TCP
       port: 2112
