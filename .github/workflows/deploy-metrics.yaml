@@ -4,13 +4,16 @@ on:
   push:
     branches:
       - main
-    # MAGIC PART 1: Only run this if files inside 'final_project' change
     paths:
       - 'final_project/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -32,19 +35,27 @@ jobs:
       - name: Install Kubectl
         uses: azure/setup-kubectl@v3
 
-      - name: Set up Kubeconfig
+      - name: Set up Kubeconfig base
         run: |
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG_CONTENT }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
+      - name: Get OIDC Token
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const token = await core.getIDToken('kyma-cluster');
+            core.exportVariable('OIDC_TOKEN', token);
+
+      - name: Update Kubeconfig with Token
+        run: |
+          CURRENT_CONTEXT=$(kubectl config current-context)
+          kubectl config set-credentials github-actions --token=$OIDC_TOKEN
+          kubectl config set-context $CURRENT_CONTEXT --user=github-actions
+
       - name: Deploy with Kustomize
         run: |
-          # MAGIC PART 3: Go into the project folder before running commands
           cd final_project/k8s/overlays/production
-          
-          # Update the image tag to the new version we just built
           kustomize edit set image mgpetrova62/my-go-exporter=mgpetrova62/my-go-exporter:${{ github.sha }}
-          
-          # Build and Apply!
           kubectl kustomize . | kubectl apply -f -
