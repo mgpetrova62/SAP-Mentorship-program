@@ -15,7 +15,6 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "2112"
     spec:
-      hostNetwork: true
       hostPID: true
       containers:
       - name: exporter
