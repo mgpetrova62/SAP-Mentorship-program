@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: exporter-service
+  namespace: default
+  labels:
+    app: host-metrics-exporter
+spec:
+  ports:
+  - port: 2112
+    protocol: TCP
+  selector:
+    app: host-metrics-exporter
