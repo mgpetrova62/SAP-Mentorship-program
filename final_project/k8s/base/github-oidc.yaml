@@ -1,0 +1,9 @@
+apiVersion: authentication.gardener.cloud/v1alpha1
+kind: OpenIDConnect
+metadata:
+  name: github-actions
+spec:
+  issuerURL: https://token.actions.githubusercontent.com
+  clientID: kyma-cluster
+  usernameClaim: sub
+  usernamePrefix: "github:"
