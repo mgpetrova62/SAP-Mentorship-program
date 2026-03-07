@@ -17,14 +17,16 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: host-metrics-exporter
+      app: kube-state-metrics 
   policyTypes:
   - Ingress
   ingress:
   - from:
     - podSelector:
         matchLabels:
-          app: prometheus-server  
+          app: prometheus-server
     ports:
     - protocol: TCP
-      port: 2112
+      port: 2112 
+    - protocol: TCP
+      port: 8080 
