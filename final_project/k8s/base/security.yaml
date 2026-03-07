@@ -1,12 +1,22 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-prometheus
+  name: default-deny-all
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-exporter
   namespace: default
 spec:
   podSelector:
     matchLabels:
-      app: host-metrics-exporter 
+      app: host-metrics-exporter
   policyTypes:
   - Ingress
   ingress:
@@ -16,9 +26,7 @@ spec:
           app: prometheus-server
     ports:
     - protocol: TCP
-      port: 2112 
-    - protocol: TCP
-      port: 8080 
+      port: 2112
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
@@ -28,7 +36,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: kube-state-metrics 
+      app: kube-state-metrics
   policyTypes:
   - Ingress
   ingress:
