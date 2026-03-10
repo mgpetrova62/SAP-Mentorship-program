@@ -5,5 +5,3 @@ resources:
   - daemonset.yaml
   - service.yaml
   - security.yaml
-  - ksm.yaml
-  - ksm-rbac.yaml
