@@ -18,7 +18,7 @@ spec:
       hostPID: true
       containers:
       - name: exporter
-        image: mgpetrova62/my-go-exporter:v4
+        image: mgpetrova62/my-go-exporter:v5
         ports:
         - containerPort: 2112
         env:
@@ -26,12 +26,17 @@ spec:
           value: /host/proc
         - name: HOST_SYS
           value: /host/sys
+        - name: HOST_ROOTFS
+          value: /host/rootfs
         volumeMounts:
         - name: proc
           mountPath: /host/proc
           readOnly: true
         - name: sys
           mountPath: /host/sys
+          readOnly: true
+        - name: rootfs
+          mountPath: /host/rootfs
           readOnly: true
       volumes:
       - name: proc
@@ -40,3 +45,6 @@ spec:
       - name: sys
         hostPath:
           path: /sys
+      - name: rootfs
+        hostPath:
+          path: /
