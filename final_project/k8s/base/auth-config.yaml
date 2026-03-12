@@ -1,0 +1,12 @@
+apiVersion: apiserver.config.k8s.io/v1beta1
+kind: AuthenticationConfiguration
+jwt:
+- issuer:
+    url: https://token.actions.githubusercontent.com
+    audiences:
+    - sts.amazonaws.com 
+    audienceMatchPolicy: MatchAny
+  claimMappings:
+    username:
+      claim: "sub"
+      prefix: "github:"
